@@ -1,0 +1,10 @@
+/*
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/assets/accessibility.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/assets/moran-logo.svg
+  Cache-Control: no-cache, no-store, must-revalidate
