@@ -1,5 +1,5 @@
 (function(){
-  function ready(fn){document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn):fn();}
+  function ready(fn){fn();}
 
   ready(function(){
     var style=document.createElement('style');
