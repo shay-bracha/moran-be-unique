@@ -12,7 +12,7 @@
       .a11y-toggle svg{width:28px;height:28px;display:block}
 
       .a11y-panel{position:fixed;left:18px;bottom:80px;z-index:100001;width:min(330px,calc(100vw - 36px));max-height:min(620px,calc(100vh - 110px));overflow:auto;background:#fff;color:#242424;border:1px solid #d8d8d8;border-radius:18px;padding:16px;box-shadow:0 14px 38px rgba(0,0,0,.24);font-family:Arial,'Heebo',sans-serif;direction:rtl}
-      .a11y-panel[hidden]{display:none}
+      .a11y-panel[hidden],.a11y-hide-dialog[hidden]{display:none}
       .a11y-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
       .a11y-head h2{font-size:20px;margin:0;font-family:Arial,'Heebo',sans-serif}
       .a11y-close{width:36px;height:36px;border:0 !important;border-radius:50% !important;background:#f1f1f1 !important;font-size:22px !important;line-height:1 !important;padding:0 !important;margin:0 !important}
@@ -21,7 +21,20 @@
       .a11y-panel button:hover{background:#f5f5f5}
       .a11y-panel button[aria-pressed="true"]{background:#2f302c;color:#fff;border-color:#2f302c}
       .a11y-wide{grid-column:1/-1}
+      .a11y-hide-btn{background:#f8f8f8 !important;border-style:dashed !important}
       .a11y-note{font-size:12px;color:#666;margin:12px 2px 0;line-height:1.5}
+
+      .a11y-hide-overlay{position:fixed;inset:0;z-index:100002;background:rgba(0,0,0,.4);display:grid;place-items:center;padding:18px}
+      .a11y-hide-dialog{width:min(430px,100%);background:#fff;color:#222;border-radius:16px;box-shadow:0 18px 60px rgba(0,0,0,.3);direction:rtl;font-family:Arial,'Heebo',sans-serif;overflow:hidden}
+      .a11y-hide-dialog-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e3e3e3}
+      .a11y-hide-dialog-head h3{font-size:18px;margin:0}
+      .a11y-hide-dialog-close{border:0;background:transparent;font-size:24px;cursor:pointer;padding:2px 6px}
+      .a11y-hide-options{padding:18px 20px}
+      .a11y-hide-options label{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:15px;cursor:pointer}
+      .a11y-hide-actions{display:flex;gap:10px;justify-content:flex-start;padding:14px 20px 18px;border-top:1px solid #e3e3e3}
+      .a11y-hide-confirm,.a11y-hide-cancel{min-height:42px;border-radius:8px;padding:8px 16px;font-weight:600;cursor:pointer}
+      .a11y-hide-confirm{background:#2f63d8;color:#fff;border:1px solid #2f63d8}
+      .a11y-hide-cancel{background:#fff;color:#333;border:1px solid #cfcfcf}
 
       html.a11y-size-1{font-size:112%}
       html.a11y-size-2{font-size:125%}
@@ -60,6 +73,18 @@
     });
     document.querySelectorAll('img:not([alt])').forEach(function(img){img.alt=''});
 
+    function widgetHidden(){
+      try{
+        var raw=localStorage.getItem('moranA11yHiddenUntil');
+        if(!raw)return false;
+        if(raw==='session')return sessionStorage.getItem('moranA11yHiddenSession')==='1';
+        var until=parseInt(raw,10);
+        if(!isNaN(until)&&Date.now()<until)return true;
+        localStorage.removeItem('moranA11yHiddenUntil');
+      }catch(e){}
+      return false;
+    }
+
     var toggle=document.createElement('button');
     toggle.className='a11y-toggle';
     toggle.type='button';
@@ -86,9 +111,24 @@
         <button type="button" data-a11y="readable">פונט קריא</button>\
         <button type="button" data-a11y="headings">הדגשת כותרות</button>\
         <button type="button" data-a11y="motion">עצירת אנימציות</button>\
+        <button type="button" class="a11y-wide a11y-hide-btn" data-a11y="hide-widget">◉ הסתרת וידג׳ט הנגישות</button>\
         <button type="button" class="a11y-wide" data-a11y="reset">איפוס כל ההגדרות</button>\
       </div>\
       <p class="a11y-note">ההגדרות נשמרות גם במעבר בין עמודי האתר.</p>';
+
+    var overlay=document.createElement('div');
+    overlay.className='a11y-hide-overlay';
+    overlay.hidden=true;
+    overlay.innerHTML='\
+      <div class="a11y-hide-dialog" role="dialog" aria-modal="true" aria-labelledby="a11y-hide-title">\
+        <div class="a11y-hide-dialog-head"><h3 id="a11y-hide-title">הסתרת וידג׳ט נגישות</h3><button type="button" class="a11y-hide-dialog-close" aria-label="סגירה">×</button></div>\
+        <div class="a11y-hide-options">\
+          <label><input type="radio" name="a11y-hide-period" value="session" checked> רק עבור ההפעלה הנוכחית</label>\
+          <label><input type="radio" name="a11y-hide-period" value="24h"> 24 שעות</label>\
+          <label><input type="radio" name="a11y-hide-period" value="week"> שבוע אחד</label>\
+        </div>\
+        <div class="a11y-hide-actions"><button type="button" class="a11y-hide-confirm">הסתר את הווידג׳ט</button><button type="button" class="a11y-hide-cancel">ביטול</button></div>\
+      </div>';
 
     function load(){try{return JSON.parse(localStorage.getItem('moranA11y')||'{}')}catch(e){return {}}}
     function save(s){try{localStorage.setItem('moranA11y',JSON.stringify(s))}catch(e){}}
@@ -108,8 +148,32 @@
 
     function openPanel(){panel.hidden=false;toggle.setAttribute('aria-expanded','true');var b=panel.querySelector('button');if(b)b.focus();}
     function closePanel(){panel.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.focus();}
+    function openHideDialog(){overlay.hidden=false;var r=overlay.querySelector('input:checked');if(r)r.focus();}
+    function closeHideDialog(){overlay.hidden=true;var b=panel.querySelector('[data-a11y="hide-widget"]');if(b)b.focus();}
+    function hideWidget(){
+      var selected=overlay.querySelector('input[name="a11y-hide-period"]:checked');
+      var period=selected?selected.value:'session';
+      try{
+        if(period==='session'){
+          localStorage.setItem('moranA11yHiddenUntil','session');
+          sessionStorage.setItem('moranA11yHiddenSession','1');
+        }else if(period==='24h'){
+          localStorage.setItem('moranA11yHiddenUntil',String(Date.now()+24*60*60*1000));
+        }else if(period==='week'){
+          localStorage.setItem('moranA11yHiddenUntil',String(Date.now()+7*24*60*60*1000));
+        }
+      }catch(e){}
+      overlay.hidden=true;
+      panel.hidden=true;
+      toggle.hidden=true;
+      toggle.setAttribute('aria-expanded','false');
+    }
+
     toggle.addEventListener('click',function(){panel.hidden?openPanel():closePanel()});
     panel.querySelector('.a11y-close').addEventListener('click',closePanel);
+    overlay.querySelector('.a11y-hide-dialog-close').addEventListener('click',closeHideDialog);
+    overlay.querySelector('.a11y-hide-cancel').addEventListener('click',closeHideDialog);
+    overlay.querySelector('.a11y-hide-confirm').addEventListener('click',hideWidget);
 
     panel.addEventListener('click',function(e){
       var key=e.target&&e.target.getAttribute('data-a11y');if(!key)return;
@@ -121,18 +185,23 @@
       if(key==='readable')state.readable=!state.readable;
       if(key==='headings')state.headings=!state.headings;
       if(key==='motion')state.motion=!state.motion;
+      if(key==='hide-widget'){openHideDialog();return;}
       if(key==='reset')state={};
       save(state);apply(state);
     });
 
     document.addEventListener('keydown',function(e){
+      if(e.key==='Escape'&&!overlay.hidden){closeHideDialog();return;}
       if(e.key==='Escape'&&!panel.hidden)closePanel();
     });
     document.addEventListener('click',function(e){
-      if(!panel.hidden&&!panel.contains(e.target)&&!toggle.contains(e.target)){panel.hidden=true;toggle.setAttribute('aria-expanded','false');}
+      if(!panel.hidden&&!panel.contains(e.target)&&!toggle.contains(e.target)&&overlay.hidden){panel.hidden=true;toggle.setAttribute('aria-expanded','false');}
     });
 
     document.body.appendChild(toggle);
     document.body.appendChild(panel);
+    document.body.appendChild(overlay);
+
+    if(widgetHidden())toggle.hidden=true;
   });
 })();
