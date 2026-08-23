@@ -3,22 +3,41 @@
   ready(function(){
     var style=document.createElement('style');
     style.textContent=`
-      :focus-visible{outline:3px solid #1f5fae !important;outline-offset:3px !important}
-      .skip-link{position:fixed;top:10px;right:10px;z-index:99999;background:#111;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none;transform:translateY(-150%);transition:transform .2s}
+      :focus-visible{outline:3px solid #1557b0 !important;outline-offset:3px !important}
+      .skip-link{position:fixed;top:10px;right:10px;z-index:100001;background:#111;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none;transform:translateY(-160%);transition:transform .2s}
       .skip-link:focus{transform:translateY(0)}
-      .a11y-toggle{position:fixed;left:18px;bottom:18px;z-index:9998;width:52px;height:52px;border-radius:50%;border:2px solid #fff;background:#2f302c;color:#fff;font:700 24px/1 Arial,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.2);cursor:pointer}
-      .a11y-panel{position:fixed;left:18px;bottom:80px;z-index:9999;width:min(300px,calc(100vw - 36px));background:#fff;color:#222;border:1px solid #cfcfcf;border-radius:16px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.22);font-family:Arial,sans-serif;direction:rtl}
-      .a11y-panel[hidden]{display:none}.a11y-panel h2{font-size:18px;margin:0 0 10px;font-family:Arial,sans-serif}
-      .a11y-panel button{width:100%;margin:4px 0;padding:10px 12px;border:1px solid #777;border-radius:10px;background:#fff;color:#111;font-size:15px;cursor:pointer}
-      .a11y-panel button:hover{background:#f2f2f2}
-      html.a11y-large{font-size:118%}html.a11y-larger{font-size:132%}
+
+      .a11y-toggle{position:fixed;left:18px;bottom:18px;z-index:100000;width:50px;height:50px;border-radius:50%;border:2px solid rgba(62,61,52,.25);background:#eef04a;color:#2f302c;display:grid;place-items:center;box-shadow:0 5px 16px rgba(0,0,0,.18);cursor:pointer;padding:0;transition:transform .18s,box-shadow .18s}
+      .a11y-toggle:hover{transform:scale(1.05);box-shadow:0 7px 20px rgba(0,0,0,.22)}
+      .a11y-toggle svg{width:28px;height:28px;display:block}
+
+      .a11y-panel{position:fixed;left:18px;bottom:80px;z-index:100001;width:min(330px,calc(100vw - 36px));max-height:min(620px,calc(100vh - 110px));overflow:auto;background:#fff;color:#242424;border:1px solid #d8d8d8;border-radius:18px;padding:16px;box-shadow:0 14px 38px rgba(0,0,0,.24);font-family:Arial,'Heebo',sans-serif;direction:rtl}
+      .a11y-panel[hidden]{display:none}
+      .a11y-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+      .a11y-head h2{font-size:20px;margin:0;font-family:Arial,'Heebo',sans-serif}
+      .a11y-close{width:36px;height:36px;border:0 !important;border-radius:50% !important;background:#f1f1f1 !important;font-size:22px !important;line-height:1 !important;padding:0 !important;margin:0 !important}
+      .a11y-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      .a11y-panel button{min-height:48px;margin:0;padding:9px 10px;border:1px solid #cfcfcf;border-radius:12px;background:#fff;color:#111;font-size:14px;line-height:1.25;cursor:pointer;font-weight:600}
+      .a11y-panel button:hover{background:#f5f5f5}
+      .a11y-panel button[aria-pressed="true"]{background:#2f302c;color:#fff;border-color:#2f302c}
+      .a11y-wide{grid-column:1/-1}
+      .a11y-note{font-size:12px;color:#666;margin:12px 2px 0;line-height:1.5}
+
+      html.a11y-size-1{font-size:112%}
+      html.a11y-size-2{font-size:125%}
+      html.a11y-size-3{font-size:140%}
+      html.a11y-grayscale body{filter:grayscale(1)}
       html.a11y-contrast body{background:#000 !important;color:#fff !important}
-      html.a11y-contrast body *{background-color:#000 !important;color:#fff !important;border-color:#fff !important;box-shadow:none !important}
-      html.a11y-contrast a,html.a11y-contrast button{color:#ffeb3b !important;text-decoration:underline !important}
-      html.a11y-underline a{text-decoration:underline !important;text-underline-offset:3px}
-      html.a11y-readable body,html.a11y-readable body *{font-family:Arial,sans-serif !important;letter-spacing:.02em !important;word-spacing:.06em !important}
+      html.a11y-contrast body *{background-color:#000 !important;color:#fff !important;border-color:#fff !important;box-shadow:none !important;text-shadow:none !important}
+      html.a11y-contrast a,html.a11y-contrast button{color:#ffef54 !important;text-decoration:underline !important}
+      html.a11y-underline a{text-decoration:underline !important;text-underline-offset:4px;text-decoration-thickness:2px !important}
+      html.a11y-readable body,html.a11y-readable body *{font-family:Arial,sans-serif !important;letter-spacing:.02em !important;word-spacing:.08em !important}
+      html.a11y-headings h1,html.a11y-headings h2,html.a11y-headings h3,html.a11y-headings h4,html.a11y-headings h5,html.a11y-headings h6{outline:3px solid #ffcc00 !important;outline-offset:4px !important}
+      html.a11y-stop-motion *,html.a11y-stop-motion *::before,html.a11y-stop-motion *::after{animation:none !important;transition:none !important;scroll-behavior:auto !important}
+
       @media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto !important;animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}}
-      @media(max-width:600px){.a11y-toggle{left:12px;bottom:12px;width:48px;height:48px}.a11y-panel{left:12px;bottom:68px;width:calc(100vw - 24px)}}
+      @media(max-width:600px){.a11y-toggle{left:12px;bottom:12px;width:48px;height:48px}.a11y-panel{left:12px;bottom:68px;width:calc(100vw - 24px);max-height:calc(100vh - 90px)}.a11y-grid{grid-template-columns:1fr 1fr}.a11y-panel button{font-size:13.5px}}
+      @media(max-width:380px){.a11y-grid{grid-template-columns:1fr}}
     `;
     document.head.appendChild(style);
 
@@ -46,41 +65,74 @@
     toggle.type='button';
     toggle.setAttribute('aria-label','פתיחת תפריט נגישות');
     toggle.setAttribute('aria-expanded','false');
-    toggle.textContent='♿';
+    toggle.setAttribute('aria-controls','a11y-panel');
+    toggle.innerHTML='<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="11" r="6" fill="currentColor"/><path d="M18 22c0-3 2-5 5-5h18c3 0 5 2 5 5 0 2-2 4-4 5l-6 2v8l9 13c2 3 1 7-2 8-3 2-6 1-8-2l-3-5-3 5c-2 3-5 4-8 2-3-1-4-5-2-8l9-13v-8l-6-2c-2-1-4-3-4-5z" fill="currentColor"/></svg>';
 
     var panel=document.createElement('div');
+    panel.id='a11y-panel';
     panel.className='a11y-panel';
     panel.hidden=true;
     panel.setAttribute('role','dialog');
+    panel.setAttribute('aria-modal','false');
     panel.setAttribute('aria-label','אפשרויות נגישות');
-    panel.innerHTML='<h2>אפשרויות נגישות</h2><button type="button" data-a11y="large">הגדלת טקסט</button><button type="button" data-a11y="contrast">ניגודיות גבוהה</button><button type="button" data-a11y="underline">הדגשת קישורים</button><button type="button" data-a11y="readable">פונט קריא</button><button type="button" data-a11y="reset">איפוס הגדרות</button>';
+    panel.innerHTML='\
+      <div class="a11y-head"><h2>אפשרויות נגישות</h2><button type="button" class="a11y-close" aria-label="סגירת תפריט נגישות">×</button></div>\
+      <div class="a11y-grid">\
+        <button type="button" data-a11y="font-up">A+ הגדלת טקסט</button>\
+        <button type="button" data-a11y="font-down">A− הקטנת טקסט</button>\
+        <button type="button" data-a11y="contrast">ניגודיות גבוהה</button>\
+        <button type="button" data-a11y="grayscale">גווני אפור</button>\
+        <button type="button" data-a11y="underline">הדגשת קישורים</button>\
+        <button type="button" data-a11y="readable">פונט קריא</button>\
+        <button type="button" data-a11y="headings">הדגשת כותרות</button>\
+        <button type="button" data-a11y="motion">עצירת אנימציות</button>\
+        <button type="button" class="a11y-wide" data-a11y="reset">איפוס כל ההגדרות</button>\
+      </div>\
+      <p class="a11y-note">ההגדרות נשמרות גם במעבר בין עמודי האתר.</p>';
 
     function load(){try{return JSON.parse(localStorage.getItem('moranA11y')||'{}')}catch(e){return {}}}
     function save(s){try{localStorage.setItem('moranA11y',JSON.stringify(s))}catch(e){}}
+    function press(key,on){var b=panel.querySelector('[data-a11y="'+key+'"]');if(b)b.setAttribute('aria-pressed',String(!!on));}
     function apply(s){
-      document.documentElement.classList.toggle('a11y-large',s.size===1);
-      document.documentElement.classList.toggle('a11y-larger',s.size===2);
+      ['a11y-size-1','a11y-size-2','a11y-size-3'].forEach(function(c){document.documentElement.classList.remove(c)});
+      if(s.size>0)document.documentElement.classList.add('a11y-size-'+Math.min(3,s.size));
       document.documentElement.classList.toggle('a11y-contrast',!!s.contrast);
+      document.documentElement.classList.toggle('a11y-grayscale',!!s.grayscale);
       document.documentElement.classList.toggle('a11y-underline',!!s.underline);
       document.documentElement.classList.toggle('a11y-readable',!!s.readable);
+      document.documentElement.classList.toggle('a11y-headings',!!s.headings);
+      document.documentElement.classList.toggle('a11y-stop-motion',!!s.motion);
+      press('contrast',s.contrast);press('grayscale',s.grayscale);press('underline',s.underline);press('readable',s.readable);press('headings',s.headings);press('motion',s.motion);
     }
     var state=load();apply(state);
 
-    toggle.addEventListener('click',function(){
-      panel.hidden=!panel.hidden;
-      toggle.setAttribute('aria-expanded',String(!panel.hidden));
-      if(!panel.hidden){var b=panel.querySelector('button');if(b)b.focus();}
-    });
+    function openPanel(){panel.hidden=false;toggle.setAttribute('aria-expanded','true');var b=panel.querySelector('button');if(b)b.focus();}
+    function closePanel(){panel.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.focus();}
+    toggle.addEventListener('click',function(){panel.hidden?openPanel():closePanel()});
+    panel.querySelector('.a11y-close').addEventListener('click',closePanel);
+
     panel.addEventListener('click',function(e){
       var key=e.target&&e.target.getAttribute('data-a11y');if(!key)return;
-      if(key==='large'){state.size=((state.size||0)+1)%3}
+      if(key==='font-up')state.size=Math.min(3,(state.size||0)+1);
+      if(key==='font-down')state.size=Math.max(0,(state.size||0)-1);
       if(key==='contrast')state.contrast=!state.contrast;
+      if(key==='grayscale')state.grayscale=!state.grayscale;
       if(key==='underline')state.underline=!state.underline;
       if(key==='readable')state.readable=!state.readable;
+      if(key==='headings')state.headings=!state.headings;
+      if(key==='motion')state.motion=!state.motion;
       if(key==='reset')state={};
       save(state);apply(state);
     });
-    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!panel.hidden){panel.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.focus();}});
-    document.body.appendChild(toggle);document.body.appendChild(panel);
+
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape'&&!panel.hidden)closePanel();
+    });
+    document.addEventListener('click',function(e){
+      if(!panel.hidden&&!panel.contains(e.target)&&!toggle.contains(e.target)){panel.hidden=true;toggle.setAttribute('aria-expanded','false');}
+    });
+
+    document.body.appendChild(toggle);
+    document.body.appendChild(panel);
   });
 })();
