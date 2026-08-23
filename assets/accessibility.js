@@ -8,13 +8,13 @@
       .moran-site-nav{position:sticky!important;top:0!important;z-index:99990!important;background:rgba(255,250,247,.97)!important;backdrop-filter:blur(12px)!important;border-bottom:1px solid var(--site-line)!important;font-family:'Heebo',Arial,sans-serif!important;width:100%!important}
       .moran-site-nav .moran-nav-inner{width:min(100%,1220px)!important;margin:0 auto!important;padding:0 32px!important;min-height:96px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:32px!important}
       .moran-site-nav .moran-brand{display:inline-flex!important;align-items:center!important;text-decoration:none!important;flex:0 0 auto!important;background:transparent!important;padding:0!important;border-radius:0!important}
-      .moran-site-nav .moran-brand img{display:block!important;width:205px!important;height:auto!important;max-height:82px!important;object-fit:contain!important}
+      .moran-site-nav .moran-brand img{display:block!important;width:185px!important;height:auto!important;max-height:76px!important;object-fit:contain!important}
       .moran-site-nav .moran-links{display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:wrap!important}
       .moran-site-nav .moran-links a{display:inline-flex!important;align-items:center!important;justify-content:center!important;text-decoration:none!important;color:var(--site-text)!important;font-weight:500!important;font-size:15px!important;line-height:1.2!important;padding:10px 14px!important;border-radius:999px!important;background:transparent!important;transition:.2s!important;white-space:nowrap!important}
       .moran-site-nav .moran-links a:hover,.moran-site-nav .moran-links a.active{background:var(--site-rose-soft)!important;color:var(--site-text)!important}
       .moran-site-nav .moran-links a.active{box-shadow:inset 0 0 0 1px rgba(216,137,134,.12)!important}
-      @media(max-width:780px){.moran-site-nav .moran-nav-inner{display:block!important;padding:12px 20px!important;min-height:auto!important}.moran-site-nav .moran-brand{display:flex!important;justify-content:center!important;margin-bottom:10px!important}.moran-site-nav .moran-brand img{width:175px!important;max-height:72px!important}.moran-site-nav .moran-links{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;width:100%!important}.moran-site-nav .moran-links a{text-align:center!important;font-size:13px!important;padding:9px 7px!important;background:rgba(255,255,255,.55)!important}}
-      @media(max-width:420px){.moran-site-nav .moran-nav-inner{padding-inline:16px!important}.moran-site-nav .moran-brand img{width:158px!important}.moran-site-nav .moran-links a{font-size:12px!important}}
+      @media(max-width:780px){.moran-site-nav .moran-nav-inner{display:block!important;padding:12px 20px!important;min-height:auto!important}.moran-site-nav .moran-brand{display:flex!important;justify-content:center!important;margin-bottom:10px!important}.moran-site-nav .moran-brand img{width:160px!important;max-height:68px!important}.moran-site-nav .moran-links{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;width:100%!important}.moran-site-nav .moran-links a{text-align:center!important;font-size:13px!important;padding:9px 7px!important;background:rgba(255,255,255,.55)!important}}
+      @media(max-width:420px){.moran-site-nav .moran-nav-inner{padding-inline:16px!important}.moran-site-nav .moran-brand img{width:148px!important}.moran-site-nav .moran-links a{font-size:12px!important}}
 
       :focus-visible{outline:3px solid #1557b0 !important;outline-offset:3px !important}
       .skip-link{position:fixed;top:10px;right:10px;z-index:100001;background:#111;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none;transform:translateY(-160%);transition:transform .2s}
@@ -68,8 +68,19 @@
     function injectSiteNav(){
       var file=currentFile();
       var active=file==='training.html'?'training':file==='tzaharon.html'||file==='regulations.html'||file==='regulations-download.html'||file==='tzaharon-regulations.html'?'tzaharon':file==='baking.html'?'baking':file==='recommendations.html'?'recommendations':'';
+      var nav=document.querySelector('nav.moran-site-nav');
+      if(nav){
+        nav.querySelectorAll('.moran-links a').forEach(function(a){
+          var href=(a.getAttribute('href')||'').toLowerCase();
+          var key=href.indexOf('training.html')>=0?'training':href.indexOf('tzaharon.html')>=0?'tzaharon':href.indexOf('baking.html')>=0?'baking':href.indexOf('recommendations.html')>=0?'recommendations':'';
+          var on=key===active;
+          a.classList.toggle('active',on);
+          if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');
+        });
+        return;
+      }
       var html='<div class="moran-nav-inner"><a class="moran-brand" href="index.html" aria-label="מורן ברכה - דף הבית"><img src="assets/moran-logo.svg" alt="מורן ברכה"></a><div class="moran-links"><a '+(active==='training'?'class="active" aria-current="page" ':'')+'href="training.html">אימון אישי</a><a '+(active==='tzaharon'?'class="active" aria-current="page" ':'')+'href="tzaharon.html">צהרון</a><a '+(active==='baking'?'class="active" aria-current="page" ':'')+'href="baking.html">סדנת אפייה</a><a '+(active==='recommendations'?'class="active" aria-current="page" ':'')+'href="recommendations.html">המלצות</a></div></div>';
-      var nav=document.querySelector('nav');
+      nav=document.querySelector('nav');
       if(!nav){nav=document.createElement('nav');document.body.insertBefore(nav,document.body.firstChild);}
       nav.className='moran-site-nav';
       nav.setAttribute('aria-label','ניווט ראשי');
