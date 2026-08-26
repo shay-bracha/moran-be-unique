@@ -105,11 +105,30 @@
       if(clear)clear.onclick=function(){initSignature();ctx.clearRect(0,0,canvas.width,canvas.height);hasSig=false;var w=canvas.closest('.signature-wrap');if(w)w.classList.remove('signed');};
     }
 
-    form.addEventListener('submit',function(e){
-      if(!validateCurrent()){e.preventDefault();return;}
-      if(canvas&&!hasSig){e.preventDefault();alert('יש לחתום בכתב יד לפני שליחת ההצהרה');return;}
+    form.addEventListener('submit',async function(e){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      if(!validateCurrent())return;
+      if(canvas&&!hasSig){alert('יש לחתום בכתב יד לפני שליחת ההצהרה');return;}
       var sig=document.getElementById('signature');if(sig&&canvas)sig.value=canvas.toDataURL('image/png');
       var signedAt=document.getElementById('signedAt');if(signedAt)signedAt.value=new Date().toLocaleString('he-IL');
+      var submit=form.querySelector('button[type="submit"]');
+      if(submit){submit.disabled=true;submit.textContent='שולח...';}
+      try{
+        var data=new FormData(form);
+        var saved=await fetch('/',{method:'POST',body:data});
+        if(!saved.ok)throw new Error('שמירת הטופס נכשלה');
+        var parentEmail=(form.querySelector('[name="parent_email"]')||{}).value||'';
+        var childName=(form.querySelector('[name="child_name"]')||{}).value||'';
+        var mail=await fetch('/api/send-form-confirmation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parent_email:parentEmail,reference:childName?'עבור '+childName:''})});
+        var mailBody={};try{mailBody=await mail.json();}catch(_e){}
+        if(!mail.ok)throw new Error(mailBody.error||'הטופס נשמר, אך שליחת המייל נכשלה');
+        form.innerHTML='<div style="text-align:center;padding:36px 14px"><div style="font-size:42px">✓</div><h2>ההצהרה נשלחה בהצלחה</h2><p>הטופס נשמר ונשלח מייל אישור לצהרון ולהורה.</p></div>';
+        window.scrollTo({top:100,behavior:'smooth'});
+      }catch(err){
+        alert(err&&err.message?err.message:'אירעה שגיאה בשליחה. נסו שוב.');
+        if(submit){submit.disabled=false;submit.textContent='חתימה ושליחת ההצהרה';}
+      }
     },true);
     initSignature();
   }
