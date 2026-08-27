@@ -37,13 +37,16 @@ export default async (req: Request) => {
   const parentEmail = String(body.parent_email || "").trim();
   const childName = String(body.child_name || "").trim();
   const pdfBase64 = String(body.pdf_base64 || "").trim();
+  const medicalBase64 = String(body.medical_base64 || "").trim();
+  const medicalFilename = safeFileName(String(body.medical_filename || "מסמך-רפואי"));
 
   if (!parentEmail || !pdfBase64) {
     return Response.json({ ok: false, error: "Missing recipient or PDF" }, { status: 400 });
   }
 
   const filename = `הצהרת-בריאות-${safeFileName(childName)}.pdf`;
-  const attachments = [{ filename, content: pdfBase64 }];
+  const attachments: Attachment[] = [{ filename, content: pdfBase64 }];
+  if (medicalBase64) attachments.push({ filename: medicalFilename, content: medicalBase64 });
   const reference = childName ? `עבור ${childName}` : "";
 
   await sendMail(
@@ -51,7 +54,7 @@ export default async (req: Request) => {
     from,
     adminEmail,
     `התקבלה הצהרת בריאות חדשה${childName ? ` - ${childName}` : ""}`,
-    `<div dir="rtl"><h2>התקבלה הצהרת בריאות חדשה</h2><p>${reference}</p><p>מצורף קובץ PDF חתום של ההצהרה.</p></div>`,
+    `<div dir="rtl"><h2>התקבלה הצהרת בריאות חדשה</h2><p>${reference}</p><p>מצורף קובץ PDF חתום של ההצהרה${medicalBase64 ? " וכן המסמך הרפואי שצורף" : ""}.</p></div>`,
     attachments
   );
 
@@ -63,7 +66,7 @@ export default async (req: Request) => {
       parentEmail,
       `עותק הצהרת הבריאות${childName ? ` - ${childName}` : ""}`,
       `<div dir="rtl"><h2>הצהרת הבריאות התקבלה בהצלחה</h2><p>${reference}</p><p>מצורף העתק PDF של ההצהרה שנשלחה.</p></div>`,
-      attachments
+      [{ filename, content: pdfBase64 }]
     );
   } catch (error) {
     parentSent = false;
